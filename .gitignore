@@ -1,0 +1,11 @@
+# created by virtualenv automatically
+/Scripts/
+/Lib/
+pyvenv.cfg
+/.idea/.gitignore
+/.idea/cw.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/toolchains.xml
+/.idea/vcs.xml
