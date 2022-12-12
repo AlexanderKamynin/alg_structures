@@ -1,8 +1,8 @@
 # created by virtualenv automatically
 /Scripts/
 /Lib/
-pyvenv.cfg
 /.idea/.gitignore
+/pyvenv.cfg
 /.idea/cw.iml
 /.idea/misc.xml
 /.idea/modules.xml
