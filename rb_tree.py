@@ -280,22 +280,30 @@ class RBTree:
             x = y
             y = y.parent
         return y
-
-def breadth_first_search_graphviz(root, dot):
-    queue = [root]
-    dot.node(str(root.key), color=root.color)
-    while queue:
-        tmp_queue = []
-        for element in queue:
-            if element.left:
-                dot.node(str(element.left.key), color=element.left.color)
-                dot.edge(str(element.key), str(element.left.key))
-                tmp_queue.append(element.left)
-            if element.right:
-                dot.node(str(element.right.key), color=element.right.color)
-                dot.edge(str(element.key), str(element.right.key))
-                tmp_queue.append(element.right)
-        queue = tmp_queue
+    def print(self, output_name):
+        que = [self.root]
+        dot = graphviz.Digraph()
+        dot.attr('node', fontsize='20')
+        def print_node(node, parent_id=''):
+            node_id = str(id(node))
+            shape = 'ellipse' if node.key is not None else 'rectangle'
+            dot.node(node_id, label=str(node.key), color=node.color, fontcolor=node.color, shape=shape)
+            if parent_id:
+                dot.edge(parent_id, node_id)
+        print_node(self.root)
+        dot.format = 'png'
+        while que:
+            tmp_que = []
+            for el in que:
+                el_id = str(id(el))
+                if el.left:
+                    print_node(el.left, el_id)
+                    tmp_que.append(el.left)
+                if el.right:
+                    print_node(el.right, el_id)
+                    tmp_que.append(el.right)
+            que = tmp_que
+        dot.render('result/{}'.format(output_name))
 
 def breadth_first_search(root):
     queue = [root]
@@ -330,41 +338,29 @@ def manual_input():
     nodes = list(map(int, input().split()))
     rb_tree = RBTree()
     for index, node in enumerate(nodes):
-        dot = graphviz.Digraph()
         rb_tree.insert(node)
-        breadth_first_search_graphviz(rb_tree.root, dot)
-        dot.render('result/g{}.gv'.format(index))
+    rb_tree.print()
     breadth_first_search(rb_tree.root)
-
-    print('Выберите узлы к удалению')
-    nodes = list(map(int, input().split()))
-    if len(nodes) != 0:
-        for index, node in enumerate(nodes):
-            dot = graphviz.Digraph()
-            rb_tree.delete(node)
-            breadth_first_search_graphviz(rb_tree.root, dot)
-            dot.render('result/g{}.gv'.format(index))
-        breadth_first_search(rb_tree.root)
-    clear_gv_files()
 
 def good_test(): # последовательные элементы
     start = time.time()
     rb_tree = RBTree()
-    for i in range(1000000):
+    for i in range(30):
         rb_tree.insert(i)
     end = time.time() - start
     print("Adding elements to rbtree table: {}".format(end))
-    #breadth_first_search(rb_tree.root)
+    rb_tree.print('insert')
     start = time.time()
     cnt = 0
     try:
-        for i in range(1000000):
+        for i in range(30):
             rb_tree.delete(i)
+            #rb_tree.print(str(i))
             cnt += 1
     except:
         print("Ошибка блин")
     end = time.time() - start
-    breadth_first_search(rb_tree.root)
+    # breadth_first_search(rb_tree.root)
     print("Удалось удалить {} элементов".format(cnt))
     print("Элементов не было удалено {}".format(rb_tree.count_not_delete_nodes))
     print("Removing elements from tree table: {}".format(end))
@@ -410,6 +406,8 @@ def check_search_time(): # поиск случайного числа в диа�
     print("Поиск элемента в RB-дереве: {}".format(end))
 
 if __name__ == '__main__':
-    # good_test()
-    not_good_test()
-    check_search_time()
+    clear_all_directory()
+    good_test()
+    # not_good_test()
+    # check_search_time()
+    # manual_input()
