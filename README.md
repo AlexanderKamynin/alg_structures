@@ -1,5 +1,7 @@
 # cw-alg_structures
 Курсовая работа по Алгоритмам и структурам данных
+[Описание и реализация RB-дерева](https://neerc.ifmo.ru/wiki/index.php?title=%D0%9A%D1%80%D0%B0%D1%81%D0%BD%D0%BE-%D1%87%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D0%B4%D0%B5%D1%80%D0%B5%D0%B2%D0%BE#.D0.A3.D0.B4.D0.B0.D0.BB.D0.B5.D0.BD.D0.B8.D0.B5_.D0.B2.D0.B5.D1.80.D1.88.D0.B8.D0.BD.D1.8B).
+
 ___
 > Реализована вставка в RB-дерево +
 
