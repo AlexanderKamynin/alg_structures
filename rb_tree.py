@@ -1,6 +1,7 @@
 import sys
 import graphviz
 import os
+import copy
 
 BLACK = 'black'
 RED = 'red'
@@ -43,9 +44,9 @@ class RBTree:
                         current.right = new_node
                         break
                     current = current.right
-            self.fix_tree(new_node)
+            self.fix_insert(new_node)
 
-    def fix_tree(self, node):
+    def fix_insert(self, node):
         while node.parent and node.parent.color == RED:
             grand_parent = node.parent.parent #дедушка узла
             if node.parent == grand_parent.left:
@@ -84,14 +85,14 @@ class RBTree:
     def fix_delete(self, node):
         while node != self.root and node.color == BLACK:
             if node == node.parent.left:
-                brother = x.parent.right
+                brother = node.parent.right
                 if brother.color == RED:
                     brother.color = BLACK
                     node.parent.color = RED
                     self.left_rotate(node.parent)
                     brother = node.parent.right
                 # Если оба ребенка черные
-                if brother.left.color == BLACK and brother.right.color == BLACK:
+                if (brother.left == None or brother.left.color == BLACK) and (brother.right == None or brother.right.color == BLACK):
                     brother.color = RED
                     node = node.parent
                 else:
@@ -106,14 +107,14 @@ class RBTree:
                     self.left_rotate(node.parent)
                     node = self.root
             else:
-                brother = x.parent.left
+                brother = node.parent.left
                 if brother.color == RED:
                     brother.color = BLACK
                     node.parent.color = RED
                     self.right_rotate(node.parent)
                     brother = node.parent.left
                 # Если оба ребенка черные
-                if brother.left.color == BLACK and brother.right.color == BLACK:
+                if (brother.left == None or brother.left.color == BLACK) and (brother.right == None or brother.right.color == BLACK):
                     brother.color = RED
                     node = node.parent
                 else:
@@ -148,35 +149,52 @@ class RBTree:
                 node = node.right
             else:
                 node = node.left
-
         if not node_to_delete:
             print("Node with {0} key doesn't exist".format(key))
             return
 
-        y = node_to_delete
-        y_original_color = y.color
-        if node_to_delete.left:
-            x = node_to_delete.right
-            self.change_nodes(node_to_delete, node_to_delete.right)
-        elif node_to_delete.right:
-            x = node_to_delete.left
-            self.change_nodes(node_to_delete, node_to_delete.left)
+        if not node_to_delete.left:
+            node_to_delete.left = self.nil
+            self.nil.parent = node_to_delete
+        if not node_to_delete.right:
+            node_to_delete.right = self.nil
+            self.nil.parent = node_to_delete
+
+        if node_to_delete.left == self.nil or node_to_delete.right == self.nil:
+            y = node_to_delete
         else:
-            y = self.min_node(node_to_delete.right)
-            y_original_color = y.color
+            y = self.successor(node_to_delete)
+            if not y.left:
+                y.left = self.nil
+                self.nil.parent = y
+            if not y.right:
+                y.right =  self.nil
+                self.nil.parent = y
+
+        if y.left != self.nil:
+            x = y.left
+        else:
             x = y.right
-            if y.parent == node_to_delete:
-                x.parent = y
-            else:
-                self.change_nodes(y, y.right)
-                y.right = node_to_delete.right
-                y.right.parent = y
-            self.change_nodes(node_to_delete, y)
-            y.left = node_to_delete.left
-            y.left.parent = y
-            y.color = node_to_delete.color
-        if y_original_color == BLACK:
-            self.fix_tree(x)
+        x.parent = y.parent
+
+        if y.parent == None:
+            self.root = x
+        elif y == y.parent.left:
+                y.parent.left = x
+        else:
+                y.parent.right = x
+
+        if y != node_to_delete:
+            node_to_delete = copy.deepcopy(y)
+        if y.color == BLACK:
+            self.fix_delete(x)
+
+        if y.parent.left == self.nil:
+            y.parent.left = None
+        if y.parent.right == self.nil:
+            y.parent.right = None
+        self.nil.parent = None
+        return y
 
     def left_rotate(self, node): # node - отец нового элемента
         if not node.right:
@@ -223,6 +241,15 @@ class RBTree:
             return node
         else:
             return node
+
+    def successor(self, node):
+        if node.right != None:
+            return self.min_node(node.right)
+        y = node.parent
+        while y != None and x == y.right:
+            x = y
+            y = y.parent
+        return y
 
 def breadth_first_search_graphviz(root, dot):
     queue = [root]

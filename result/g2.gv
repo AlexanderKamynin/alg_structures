@@ -1,7 +1,0 @@
-digraph {
-	4 [color=black]
-	3 [color=red]
-	4 -> 3
-	5 [color=red]
-	4 -> 5
-}
