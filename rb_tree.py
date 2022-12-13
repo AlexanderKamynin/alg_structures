@@ -1,7 +1,9 @@
 import sys
 import graphviz
 import os
+import random
 import copy
+import time
 
 BLACK = 'black'
 RED = 'red'
@@ -96,7 +98,8 @@ class RBTree:
                     brother.color = RED
                     node = node.parent
                 else:
-                    if brother.right.color == BLACK:
+                    #если правый черный или None
+                    if brother.right == None or brother.right.color == BLACK:
                         brother.left.color = BLACK
                         brother.color = RED
                         self.right_rotate(brother)
@@ -118,7 +121,7 @@ class RBTree:
                     brother.color = RED
                     node = node.parent
                 else:
-                    if brother.left.color == BLACK:
+                    if brother.left == None or brother.left.color == BLACK:
                         brother.right.color = BLACK
                         brother.color = RED
                         self.left_rotate(brother)
@@ -302,8 +305,7 @@ def clear_gv_files():
         if '.pdf' not in f:
             os.remove(os.path.join(dir, f))
 
-
-if __name__ == '__main__':
+def manual_input():
     clear_all_directory()
     print('Выберите узлы к добавлению в дерево')
     nodes = list(map(int, input().split()))
@@ -324,5 +326,54 @@ if __name__ == '__main__':
             breadth_first_search_graphviz(rb_tree.root, dot)
             dot.render('result/g{}.gv'.format(index))
         breadth_first_search(rb_tree.root)
-
     clear_gv_files()
+
+def good_test(): # последовательные элементы
+    start = time.time()
+    rb_tree = RBTree()
+    for i in range(1000000):
+        rb_tree.insert(i)
+    end = time.time() - start
+    print("Adding elements to rbtree table: {}".format(end))
+    #breadth_first_search(rb_tree.root)
+    start = time.time()
+    cnt = 0
+    try:
+        for i in range(1000000):
+            rb_tree.delete(i)
+            cnt += 1
+    except:
+        print("Ошибка блин")
+    end = time.time() - start
+    #breadth_first_search(rb_tree.root)
+    print("Удалось удалить {} элементов".format(cnt))
+    print("Removing elements from tree table: {}".format(end))
+
+def not_good_test(): # перемешанные элементы с помощью функции shuffle() модуля random
+    nodes_to_add = []
+    for i in range(1000000):
+        nodes_to_add.append(i)
+    random.shuffle(nodes_to_add)
+    rb_tree = RBTree()
+    start = time.time()
+    for i in range(1000000):
+        rb_tree.insert(nodes_to_add[i])
+    end = time.time() - start
+    print("Adding elements to rbtree table: {}".format(end))
+    #breadth_first_search(rb_tree.root)
+    start = time.time()
+    cnt = 0
+    try:
+        for i in range(1000000):
+            rb_tree.delete(i)
+            cnt += 1
+    except:
+        print("Ошибка блин")
+    end = time.time() - start
+    #breadth_first_search(rb_tree.root)
+    print("Удалось удалить {} элементов".format(cnt))
+    print("Removing elements from tree table: {}".format(end))
+
+if __name__ == '__main__':
+    # good_test()
+    not_good_test()
