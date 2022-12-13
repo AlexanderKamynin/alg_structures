@@ -137,11 +137,16 @@ class RBTree:
             node1.parent.left = node2
         else:
             node1.parent.right = node2
+        if not node2:
+            node2 = self.nil
         node2.parent = node1.parent
 
     def delete(self, key):
         node_to_delete = Node(key, BLACK)
         node = self.root
+        if node == self.nil:
+            print("Node with {0} key doesn't exist. Tree is empty".format(key))
+            return
         while node:
             if node.key == key:
                 node_to_delete = node
@@ -160,38 +165,39 @@ class RBTree:
             node_to_delete.right = self.nil
             self.nil.parent = node_to_delete
 
-        if node_to_delete.left == self.nil or node_to_delete.right == self.nil:
-            y = node_to_delete
+        y = node_to_delete
+        y_origin_color = y.color
+        if node_to_delete.left == self.nil:
+            # у элемента нет левого сына
+            x = node_to_delete.right
+            self.change_nodes(node_to_delete, node_to_delete.right)
+        elif (node_to_delete.right == self.nil):
+            # у элемента нет правого сына
+            x = node_to_delete.left
+            self.change_nodes(node_to_delete, node_to_delete.left)
         else:
-            y = self.successor(node_to_delete)
-            if not y.left:
-                y.left = self.nil
-                self.nil.parent = y
-            if not y.right:
-                y.right =  self.nil
-                self.nil.parent = y
-
-        if y.left != self.nil:
-            x = y.left
-        else:
+            # есть оба ребенка
+            y = self.min_node(node_to_delete.right)
+            y_origin_color = y.color
             x = y.right
-        x.parent = y.parent
-
-        if y.parent == None:
-            self.root = x
-        elif y == y.parent.left:
-                y.parent.left = x
-        else:
-                y.parent.right = x
-
-        if y != node_to_delete:
-            node_to_delete = copy.deepcopy(y)
-        if y.color == BLACK:
+            if not x:
+                x = self.nil
+            if y.parent == node_to_delete: # если y - ребенок node_to_delete
+                x.parent = y
+            else:
+                self.change_nodes(y, y.right)
+                y.right = node_to_delete.right
+                y.right.parent = y
+            self.change_nodes(node_to_delete, y)
+            y.left = node_to_delete.left
+            y.left.parent = y
+            y.color = node_to_delete.color
+        if y_origin_color == BLACK:
             self.fix_delete(x)
 
-        if y.parent.left == self.nil:
+        if y.parent and y.parent.left == self.nil:
             y.parent.left = None
-        if y.parent.right == self.nil:
+        if y.parent and y.parent.right == self.nil:
             y.parent.right = None
         self.nil.parent = None
         return y
@@ -238,9 +244,11 @@ class RBTree:
         if node:
             while node.left:
                 node = node.left
+            if not node:
+                node = self.nil
             return node
         else:
-            return node
+            return self.nil
 
     def successor(self, node):
         if node.right != None:
