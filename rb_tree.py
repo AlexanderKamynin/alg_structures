@@ -25,8 +25,25 @@ class Node:
 
 class RBTree:
     def __init__(self):
+        self.count_not_delete_nodes = 0
         self.root = None
         self.nil = Node(-1, BLACK)
+
+    def search(self, key): #итеративный поиск
+        current = self.root
+        if not current or current == self.nil:
+            print('RB-дерево пустое')
+            return
+        while current and current.key != key:
+            if key < current.key:
+                current = current.left
+            else:
+                current = current.right
+        if not current:
+            print('Узла с ключом {} нет'.format(key))
+            return
+        print('Ключ найден: {}'.format(str(current)))
+        return current
 
     def insert(self, key):
         if not self.root:
@@ -149,6 +166,7 @@ class RBTree:
         node = self.root
         if node == self.nil:
             print("Node with {0} key doesn't exist. Tree is empty".format(key))
+            self.count_not_delete_nodes += 1
             return
         while node:
             if node.key == key:
@@ -159,6 +177,7 @@ class RBTree:
                 node = node.left
         if not node_to_delete:
             print("Node with {0} key doesn't exist".format(key))
+            self.count_not_delete_nodes += 1
             return
 
         if not node_to_delete.left:
@@ -345,18 +364,19 @@ def good_test(): # последовательные элементы
     except:
         print("Ошибка блин")
     end = time.time() - start
-    #breadth_first_search(rb_tree.root)
+    breadth_first_search(rb_tree.root)
     print("Удалось удалить {} элементов".format(cnt))
+    print("Элементов не было удалено {}".format(rb_tree.count_not_delete_nodes))
     print("Removing elements from tree table: {}".format(end))
 
 def not_good_test(): # перемешанные элементы с помощью функции shuffle() модуля random
     nodes_to_add = []
-    for i in range(1000000):
+    for i in range(1000):
         nodes_to_add.append(i)
     random.shuffle(nodes_to_add)
     rb_tree = RBTree()
     start = time.time()
-    for i in range(1000000):
+    for i in range(1000):
         rb_tree.insert(nodes_to_add[i])
     end = time.time() - start
     print("Adding elements to rbtree table: {}".format(end))
@@ -364,7 +384,7 @@ def not_good_test(): # перемешанные элементы с помощь
     start = time.time()
     cnt = 0
     try:
-        for i in range(1000000):
+        for i in range(100):
             rb_tree.delete(i)
             cnt += 1
     except:
@@ -372,8 +392,24 @@ def not_good_test(): # перемешанные элементы с помощь
     end = time.time() - start
     #breadth_first_search(rb_tree.root)
     print("Удалось удалить {} элементов".format(cnt))
+    print("Элементов не было удалено {}".format(rb_tree.count_not_delete_nodes))
     print("Removing elements from tree table: {}".format(end))
+
+def check_search_time(): # поиск случайного числа в диапозоне 0-100000 в RB-дереве
+    nodes_to_add = []
+    for i in range(1000000):
+        nodes_to_add.append(i)
+    random.shuffle(nodes_to_add)
+    rb_tree = RBTree()
+    for i in range(1000000):
+        rb_tree.insert(nodes_to_add[i])
+    random_number = random.randint(0, 100000)
+    start = time.time()
+    rb_tree.search(random_number)
+    end = time.time() - start
+    print("Поиск элемента в RB-дереве: {}".format(end))
 
 if __name__ == '__main__':
     # good_test()
     not_good_test()
+    check_search_time()
