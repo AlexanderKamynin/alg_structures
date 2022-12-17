@@ -1,6 +1,8 @@
 import random
+import time
+import itertools
 
-DELETED = 'deleted' # для обработки удалений элементов. P.S. довольно неэффективно
+DELETED = 'deleted' # для обработки удалений элементов
 
 class Probe:
     def __init__(self, key = None, idx = None):
@@ -8,7 +10,7 @@ class Probe:
         self.idx = idx
 
     def __str__(self):
-        return 'key: {}, cell: {}'.format(self.key, self.idx)
+        return 'key: {}, idx: {}'.format(self.key, self.idx)
 
     def __eq__(self, other):
         return self.key == other.key
@@ -20,6 +22,12 @@ class HashTable:
         self.current_size = 0
         self.table = [None for _ in range(self.size)]
         self.hash_type = 'linear'
+        self.k = 3  # фиксированный интервал между ячейками при линейном пробировани
+        #Для того, чтобы все ячейки оказались просмотренными по одному разу, необходимо,
+        # чтобы k было взаимно-простым с размером хеш-таблицы.
+        self.c1 = 0 # \
+                    #  | коэффициенты при квадратичном пробировании
+        self.c2 = 1 # /
         self.choose_hash_type()
 
     def choose_hash_type(self):
@@ -35,28 +43,32 @@ class HashTable:
         self.table += [None for _ in range(self.size)]
         self.size *= 2
 
-    def hashing(self, key, idx):
+    def hashing(self, hash_value, i):
         if self.hash_type == 'linear':
-            return self.linear_hashing(key, idx)
+            return self.linear_hashing(hash_value, i)
         elif self.hash_type == 'quadratic':
-            return self.quadratic_hashing(key, idx)
+            return self.quadratic_hashing(hash_value, i)
 
-    def linear_hashing(self, key, idx):
-        hash_value = abs(key) % self.size + idx % self.size
-        return hash_value % self.size
+    def linear_hashing(self, hash_value, i):
+        cell_number = (hash_value + (i * self.k) % self.size) % self.size
+        return cell_number
 
-    def quadratic_hashing(self, key, idx):
-        hash_value = abs(key) % self.size + pow(idx, 2, self.size)
-        return hash_value % self.size
+    def quadratic_hashing(self, hash_value, i):
+        cell_number = ((hash_value + self.c1 * i) % self.size + self.c2 * pow(i, 2, self.size)) % self.size
+        return cell_number
+
+    def hash_function(self, key):
+        return key % self.size
 
     def insert(self, key):
         idx = 0
+        hash_value = self.hash_function(key)
         while True:
-            hash_value = self.hashing(key, idx)
-            if not self.table[hash_value] or self.table[hash_value].key == DELETED: # если нет такого ключа
-                self.table[hash_value] = Probe(key, hash_value)
+            cell_number = self.hashing(hash_value, idx)
+            if not self.table[cell_number] or self.table[cell_number].key == DELETED: # если нет такого ключа или он был удален
+                self.table[cell_number] = Probe(key, cell_number)
                 self.current_size += 1
-                if self.current_size >= 0.75 * self.size:
+                if self.current_size >= 0.66 * self.size:
                     self.resize()
                 break
             else:
@@ -66,24 +78,25 @@ class HashTable:
         if self.current_size == 0:
             print('Хеш-таблица пустая. Элемент {} нельзя удалить'.format(key))
             return
+        hash_value = self.hash_function(key)
         for idx in range(self.size):
-            hash_value = self.hashing(key, idx)
-            if  self.table[hash_value] and self.table[hash_value].key != DELETED and self.table[hash_value].key == key:  # если ключ найден
-                self.table[hash_value].key = DELETED
+            cell_number = self.hashing(hash_value, idx)
+            if  self.table[cell_number] and self.table[cell_number].key != DELETED and self.table[cell_number].key == key:  # если ключ найден
+                self.table[cell_number].key = DELETED
                 self.current_size -= 1
-                return hash_value
+                return
         print('Элемент с ключом {} не удален, так как не найден в хеш-таблице'.format(key))
-        return None
 
     def search(self, key):
         if self.current_size == 0:
             print('Хеш-таблица пустая. Элемент {} отсутствует'.format(key))
             return
+        hash_value = self.hash_function(key)
         for idx in range(self.size):
-            hash_value = self.hashing(key, idx)
-            if self.table[hash_value] and self.table[hash_value].key != DELETED and self.table[hash_value].key == key:  # если ключ найден
-                print('Элемент найден в хеш-таблице: {}'.format(self.table[hash_value]))
-                return hash_value
+            cell_number = self.hashing(hash_value, idx)
+            if self.table[cell_number] and self.table[cell_number].key != DELETED and self.table[cell_number].key == key:  # если ключ найден
+                #print('Элемент найден в хеш-таблице: {}'.format(self.table[hash_value]))
+                return cell_number
         print('Элемент с ключом {} не найден в хеш-таблице'.format(key))
         return None
 
@@ -101,8 +114,8 @@ if __name__ == '__main__':
     hash_table.insert(5)
     random_number = random.randint(0, 150)
     hash_table.search(random_number)
-    #for i in range(100):
+    # for i in range(100):
     hash_table.delete(5)
     print(hash_table)
-    hash_table.insert(5)
+    hash_table.insert(8)
     print(hash_table)

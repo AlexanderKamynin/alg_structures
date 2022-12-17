@@ -339,7 +339,7 @@ def manual_input():
     rb_tree = RBTree()
     for index, node in enumerate(nodes):
         rb_tree.insert(node)
-    rb_tree.print()
+    rb_tree.print('insert')
     breadth_first_search(rb_tree.root)
 
 def good_test(): # последовательные элементы
@@ -367,12 +367,12 @@ def good_test(): # последовательные элементы
 
 def not_good_test(): # перемешанные элементы с помощью функции shuffle() модуля random
     nodes_to_add = []
-    for i in range(1000):
+    for i in range(14000000):
         nodes_to_add.append(i)
     random.shuffle(nodes_to_add)
     rb_tree = RBTree()
     start = time.time()
-    for i in range(1000):
+    for i in range(14000000):
         rb_tree.insert(nodes_to_add[i])
     end = time.time() - start
     print("Adding elements to rbtree table: {}".format(end))
@@ -380,7 +380,7 @@ def not_good_test(): # перемешанные элементы с помощь
     start = time.time()
     cnt = 0
     try:
-        for i in range(100):
+        for i in range(14000000):
             rb_tree.delete(i)
             cnt += 1
     except:
@@ -405,9 +405,21 @@ def check_search_time(): # поиск случайного числа в диа�
     end = time.time() - start
     print("Поиск элемента в RB-дереве: {}".format(end))
 
+def manual_checks():
+    clear_all_directory()
+    nodes = []
+    for i in range(2222):
+        nodes.append(str(i))
+    rb_tree = RBTree()
+    for index, node in enumerate(nodes):
+        rb_tree.insert(node)
+    rb_tree.print('insert')
+    # breadth_first_search(rb_tree.root)
+
 if __name__ == '__main__':
     clear_all_directory()
-    good_test()
-    # not_good_test()
+    # good_test()
+    not_good_test()
     # check_search_time()
     # manual_input()
+    # manual_checks()
