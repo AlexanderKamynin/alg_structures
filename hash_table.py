@@ -107,15 +107,3 @@ class HashTable:
                 str_table.append(str(self.table[i]))
         return 'Hash table size: {} (current size: {}), hash table: {}'.format(self.size, self.current_size, str(str_table))
 
-
-if __name__ == '__main__':
-    hash_table = HashTable(1000)
-    hash_table.insert(5)
-    hash_table.insert(5)
-    random_number = random.randint(0, 150)
-    hash_table.search(random_number)
-    # for i in range(100):
-    hash_table.delete(5)
-    print(hash_table)
-    hash_table.insert(8)
-    print(hash_table)

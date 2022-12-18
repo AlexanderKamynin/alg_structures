@@ -32,7 +32,7 @@ class RBTree:
     def search(self, key): #итеративный поиск
         current = self.root
         if not current or current == self.nil:
-            print('RB-дерево пустое')
+            # print('RB-дерево пустое')
             return
         while current and current.key != key:
             if key < current.key:
@@ -40,9 +40,9 @@ class RBTree:
             else:
                 current = current.right
         if not current:
-            print('Узла с ключом {} нет'.format(key))
+            # print('Узла с ключом {} нет'.format(key))
             return
-        print('Ключ найден: {}'.format(str(current)))
+        # print('Ключ найден: {}'.format(str(current)))
         return current
 
     def insert(self, key):
@@ -105,47 +105,51 @@ class RBTree:
         while node != self.root and node.color == BLACK:
             if node == node.parent.left:
                 brother = node.parent.right
-                if brother.color == RED:
+                if brother and brother.color == RED:
                     brother.color = BLACK
                     node.parent.color = RED
                     self.left_rotate(node.parent)
                     brother = node.parent.right
                 # Если оба ребенка черные
-                if (brother.left == None or brother.left.color == BLACK) and (brother.right == None or brother.right.color == BLACK):
+                if brother and (brother.left == None or brother.left.color == BLACK) and (brother.right == None or brother.right.color == BLACK):
                     brother.color = RED
                     node = node.parent
                 else:
                     #если правый черный или None
-                    if brother.right == None or brother.right.color == BLACK:
+                    if brother and (brother.right == None or brother.right.color == BLACK):
                         brother.left.color = BLACK
                         brother.color = RED
                         self.right_rotate(brother)
                         brother = node.parent.right
-                    brother.color = node.parent.color
+                    if brother:
+                        brother.color = node.parent.color
                     node.parent.color = BLACK
-                    brother.right.color = BLACK
+                    if brother and brother.right:
+                        brother.right.color = BLACK
                     self.left_rotate(node.parent)
                     node = self.root
             else:
                 brother = node.parent.left
-                if brother.color == RED:
+                if brother and brother.color == RED:
                     brother.color = BLACK
                     node.parent.color = RED
                     self.right_rotate(node.parent)
                     brother = node.parent.left
                 # Если оба ребенка черные
-                if (brother.left == None or brother.left.color == BLACK) and (brother.right == None or brother.right.color == BLACK):
+                if brother and (brother.left == None or brother.left.color == BLACK) and (brother.right == None or brother.right.color == BLACK):
                     brother.color = RED
                     node = node.parent
                 else:
-                    if brother.left == None or brother.left.color == BLACK:
+                    if brother and (brother.left == None or brother.left.color == BLACK):
                         brother.right.color = BLACK
                         brother.color = RED
                         self.left_rotate(brother)
                         brother = node.parent.left
-                    brother.color = node.parent.color
+                    if brother:
+                        brother.color = node.parent.color
                     node.parent.color = BLACK
-                    brother.left.color = BLACK
+                    if brother and brother.left:
+                        brother.left.color = BLACK
                     self.right_rotate(node.parent)
                     node = self.root
         node.color = BLACK
@@ -306,120 +310,16 @@ class RBTree:
         dot.render('result/{}'.format(output_name))
 
 def breadth_first_search(root):
+    result = []
     queue = [root]
-    current_level = 1
     while queue:
         tmp_queue = []
-        print("------------------{}------------------".format(current_level))
-        current_level += 1
         for element in queue:
-            print(element)
+            result.append(element.key)
             if element.left:
                 tmp_queue.append(element.left)
             if element.right:
                 tmp_queue.append(element.right)
         queue = tmp_queue
-        print()
+    return result
 
-def clear_all_directory():
-    dir = 'result'
-    for f in os.listdir(dir): #clear previous info
-        os.remove(os.path.join(dir, f))
-
-def clear_gv_files():
-    dir = 'result'
-    for f in os.listdir(dir):
-        if '.pdf' not in f:
-            os.remove(os.path.join(dir, f))
-
-def manual_input():
-    clear_all_directory()
-    print('Выберите узлы к добавлению в дерево')
-    nodes = list(map(int, input().split()))
-    rb_tree = RBTree()
-    for index, node in enumerate(nodes):
-        rb_tree.insert(node)
-    rb_tree.print('insert')
-    breadth_first_search(rb_tree.root)
-
-def good_test(): # последовательные элементы
-    start = time.time()
-    rb_tree = RBTree()
-    for i in range(30):
-        rb_tree.insert(i)
-    end = time.time() - start
-    print("Adding elements to rbtree table: {}".format(end))
-    rb_tree.print('insert')
-    start = time.time()
-    cnt = 0
-    try:
-        for i in range(30):
-            rb_tree.delete(i)
-            #rb_tree.print(str(i))
-            cnt += 1
-    except:
-        print("Ошибка блин")
-    end = time.time() - start
-    # breadth_first_search(rb_tree.root)
-    print("Удалось удалить {} элементов".format(cnt))
-    print("Элементов не было удалено {}".format(rb_tree.count_not_delete_nodes))
-    print("Removing elements from tree table: {}".format(end))
-
-def not_good_test(): # перемешанные элементы с помощью функции shuffle() модуля random
-    nodes_to_add = []
-    for i in range(14000000):
-        nodes_to_add.append(i)
-    random.shuffle(nodes_to_add)
-    rb_tree = RBTree()
-    start = time.time()
-    for i in range(14000000):
-        rb_tree.insert(nodes_to_add[i])
-    end = time.time() - start
-    print("Adding elements to rbtree table: {}".format(end))
-    #breadth_first_search(rb_tree.root)
-    start = time.time()
-    cnt = 0
-    try:
-        for i in range(14000000):
-            rb_tree.delete(i)
-            cnt += 1
-    except:
-        print("Ошибка блин")
-    end = time.time() - start
-    #breadth_first_search(rb_tree.root)
-    print("Удалось удалить {} элементов".format(cnt))
-    print("Элементов не было удалено {}".format(rb_tree.count_not_delete_nodes))
-    print("Removing elements from tree table: {}".format(end))
-
-def check_search_time(): # поиск случайного числа в диапозоне 0-100000 в RB-дереве
-    nodes_to_add = []
-    for i in range(1000000):
-        nodes_to_add.append(i)
-    random.shuffle(nodes_to_add)
-    rb_tree = RBTree()
-    for i in range(1000000):
-        rb_tree.insert(nodes_to_add[i])
-    random_number = random.randint(0, 100000)
-    start = time.time()
-    rb_tree.search(random_number)
-    end = time.time() - start
-    print("Поиск элемента в RB-дереве: {}".format(end))
-
-def manual_checks():
-    clear_all_directory()
-    nodes = []
-    for i in range(2222):
-        nodes.append(str(i))
-    rb_tree = RBTree()
-    for index, node in enumerate(nodes):
-        rb_tree.insert(node)
-    rb_tree.print('insert')
-    # breadth_first_search(rb_tree.root)
-
-if __name__ == '__main__':
-    clear_all_directory()
-    # good_test()
-    not_good_test()
-    # check_search_time()
-    # manual_input()
-    # manual_checks()
