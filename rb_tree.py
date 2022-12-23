@@ -9,8 +9,9 @@ BLACK = 'black'
 RED = 'red'
 
 class Node:
-    def __init__(self, key, color, parent=None):
+    def __init__(self, key, color, value=None, parent=None):
         self.key = key
+        self.value = value
         self.left = None
         self.right = None
         self.color = color
@@ -20,14 +21,19 @@ class Node:
         left = self.left.key if self.left else None
         right = self.right.key if self.right else None
         parent = self.parent.key if self.parent else None
-        return 'key: {}, left: {}, right: {}, color: {}, parent: {}'.format(self.key, left, right, self.color, parent)
+        return '(key, value): ({},{}), left: {}, right: {}, color: {}, parent: {}'.format(self.key, self.value, left, right, self.color, parent)
+
+    def __eq__(self, other):
+        if not other:
+            return False
+        return self.key == other.key
 
 
 class RBTree:
     def __init__(self):
         self.count_not_delete_nodes = 0
         self.root = None
-        self.nil = Node(-1, BLACK)
+        self.nil = Node(-1, color=BLACK)
 
     def search(self, key): #итеративный поиск
         current = self.root
@@ -45,21 +51,24 @@ class RBTree:
         # print('Ключ найден: {}'.format(str(current)))
         return current
 
-    def insert(self, key):
+    def insert(self, key, value):
         if not self.root:
-            self.root = Node(key, BLACK)
+            self.root = Node(key, color=BLACK, value=value)
         else:
             current = self.root
             while current:
+                if key == current.key:
+                    current.value = value
+                    return
                 if key < current.key:
                     if not current.left:
-                        new_node = Node(key, RED, current)
+                        new_node = Node(key, color=RED, value=value, parent=current)
                         current.left = new_node
                         break
                     current = current.left
                 else:
                     if not current.right:
-                        new_node = Node(key, RED, current)
+                        new_node = Node(key, color=RED, value=value, parent=current)
                         current.right = new_node
                         break
                     current = current.right
@@ -166,10 +175,10 @@ class RBTree:
         node2.parent = node1.parent
 
     def delete(self, key):
-        node_to_delete = Node(key, BLACK)
+        node_to_delete = None
         node = self.root
         if node == self.nil:
-            print("Node with {0} key doesn't exist. Tree is empty".format(key))
+            #print("Node with {0} key doesn't exist. Tree is empty".format(key))
             self.count_not_delete_nodes += 1
             return
         while node:
@@ -180,7 +189,7 @@ class RBTree:
             else:
                 node = node.left
         if not node_to_delete:
-            print("Node with {0} key doesn't exist".format(key))
+            #print("Node with {0} key doesn't exist".format(key))
             self.count_not_delete_nodes += 1
             return
 
@@ -291,7 +300,7 @@ class RBTree:
         def print_node(node, parent_id=''):
             node_id = str(id(node))
             shape = 'ellipse' if node.key is not None else 'rectangle'
-            dot.node(node_id, label=str(node.key), color=node.color, fontcolor=node.color, shape=shape)
+            dot.node(node_id, label="key: {}, value: {}".format(node.key, node.value), color=node.color, fontcolor=node.color, shape=shape)
             if parent_id:
                 dot.edge(parent_id, node_id)
         print_node(self.root)
