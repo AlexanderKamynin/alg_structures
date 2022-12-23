@@ -294,7 +294,7 @@ class RBTree:
             y = y.parent
         return y
     def print(self, output_name):
-        que = [self.root]
+        queue = [self.root]
         dot = graphviz.Digraph()
         dot.attr('node', fontsize='20')
         def print_node(node, parent_id=''):
@@ -305,17 +305,17 @@ class RBTree:
                 dot.edge(parent_id, node_id)
         print_node(self.root)
         dot.format = 'png'
-        while que:
-            tmp_que = []
-            for el in que:
-                el_id = str(id(el))
-                if el.left:
-                    print_node(el.left, el_id)
-                    tmp_que.append(el.left)
-                if el.right:
-                    print_node(el.right, el_id)
-                    tmp_que.append(el.right)
-            que = tmp_que
+        while queue:
+            tmp_queue = []
+            for elem in queue:
+                elem_id = str(id(elem))
+                if elem.left:
+                    print_node(elem.left, elem_id)
+                    tmp_que.append(elem.left)
+                if eleme.right:
+                    print_node(elem.right, elem_id)
+                    tmp_que.append(elem.right)
+            queue = tmp_queue
         dot.render('result/{}'.format(output_name))
 
 def breadth_first_search(root):

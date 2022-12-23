@@ -26,9 +26,9 @@ class HashTable:
         self.k = 3  # фиксированный интервал между ячейками при линейном пробировани
         #Для того, чтобы все ячейки оказались просмотренными по одному разу, необходимо,
         # чтобы k было взаимно-простым с размером хеш-таблицы.
-        self.c1 = 0 # \
+        self.c1 = 3 # \
                     #  | коэффициенты при квадратичном пробировании
-        self.c2 = 1 # /
+        self.c2 = 2 # /
         self.choose_hash_type()
 
     def choose_hash_type(self):
@@ -71,7 +71,7 @@ class HashTable:
         return key % self.size
 
     def second_hash_function(self, key):
-        return (key * 7 + 1) % self.size
+        return 7 - (key % 7)
 
     def insert(self, key, value):
         idx = 0
@@ -88,7 +88,7 @@ class HashTable:
             if not self.table[cell_number] or self.table[cell_number] == DELETED: # если нет такого ключа или он был удален
                 self.table[cell_number] = Node(key, value)
                 self.current_size += 1
-                if self.current_size >= 0.88 * self.size:
+                if self.current_size >= 0.66 * self.size:
                     self.resize()
                 break
             else:
